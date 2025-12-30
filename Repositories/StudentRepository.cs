@@ -22,12 +22,18 @@ public class StudentRepository : IStudentRepository
 
     public async Task<List<Student>> GetAll()
     {
-        return await _context.Students.ToListAsync();
+        return await _context.Students
+            .AsNoTracking()
+            .Include(s => s.CreatedByUser)
+            .ToListAsync();
     }
 
     public async Task<Student?> GetById(int id)
     {
-        return await _context.Students.FirstOrDefaultAsync(s => s.Id == id);
+        return await _context.Students
+            .Where(s => s.Id == id)
+            .Include(s => s.CreatedByUser)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<bool> Add(Student student)

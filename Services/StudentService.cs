@@ -32,10 +32,19 @@ public class StudentService : IStudentService
     public async Task<(bool, object)> GetAll()
     {
         var students = await _studentRepository.GetAll();
+
         if (students.Count == 0)
             return (false, "No students found");
 
-        return (true, students);
+        var studentResponse = new List<StudentResponse>();
+
+        foreach (var student in students)
+        {
+            var response = MapStudentToStudentResponse(student);
+            studentResponse.Add(response);
+        }        
+
+        return (true, studentResponse);
     }
 
     public async Task<(bool, object?)> GetById(int id)
@@ -44,7 +53,9 @@ public class StudentService : IStudentService
         if (student == null)
             return (false, $"No student with Id: {id} found");
 
-        return (true, student);
+        var response = MapStudentToStudentResponse(student);
+
+        return (true, response);
     }
 
     public async Task<(bool, string)> Add(AddStudentDto request)
@@ -54,7 +65,7 @@ public class StudentService : IStudentService
             Name = request.Name,
             Email = request.Email,
             Phone = request.Phone,
-            CreatedBy = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Name).Value
+            CreatedBy = Convert.ToInt32(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value)
         };
 
         var result = await _studentRepository.Add(student);
@@ -93,5 +104,19 @@ public class StudentService : IStudentService
             return (false, "Failed to delete student");
 
         return (true, "Student deleted successfully");
+    }
+
+    private StudentResponse MapStudentToStudentResponse(Student student)
+    {
+        return new StudentResponse
+        {
+            Id = student.Id,
+            Name = student.Name,
+            Email = student.Email,
+            Phone = student.Phone,
+            CreatedBy = student.CreatedByUser.Name,
+            CreatedDate = student.CreatedDate,
+            ModifiedDate = student.ModifiedDate
+        };
     }
 }

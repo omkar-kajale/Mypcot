@@ -31,11 +31,11 @@ public class AuthService : IAuthService
         if (login.Password != request.Password)
             return (false, "Incorrect password");
 
-        var token = GenerateToken(request.Login);
+        var token = GenerateToken(login.Id);
         return (true, token);
     }
 
-    private string GenerateToken(string login)
+    private string GenerateToken(int id)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? ""));
 
@@ -44,7 +44,7 @@ public class AuthService : IAuthService
         var token = new JwtSecurityToken(
             issuer: _config["Jwt:Issuer"],
             audience: _config["Jwt:Audience"],
-            claims: new[] { new Claim(ClaimTypes.Name, login) },
+            claims: new[] { new Claim(ClaimTypes.NameIdentifier, Convert.ToString(id)) },
             expires: DateTime.Now.AddHours(1),
             signingCredentials: credentials
         );

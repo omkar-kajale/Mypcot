@@ -5,18 +5,18 @@
 namespace Mypcot.Migrations
 {
     /// <inheritdoc />
-    public partial class AddDummyUserData : Migration
+    public partial class SeedUserData : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: ["Id", "Login", "Password"],
+                columns: ["Id", "Login", "Password", "Name"],
                 values: new object[,]
                 {
-                    { 1, "admin", "password" },
-                    { 2, "user", "password" }
+                    { 1, "admin", "password", "omkar" },
+                    { 2, "user", "password", "test" }
                 });
         }
 
